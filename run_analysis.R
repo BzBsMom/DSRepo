@@ -32,10 +32,16 @@ TestTrain <- rbind(test,train)
 setwd("..")
 write.table(TestTrain,"TestTrain.txt")
 ## Obtain just the mean and standard deviation
-colsel<-c(1:8,43:48,83:88,123:128,163:168,203:204,216:217,242:243,255:256,268:273,296:298,347:352,375:378,426:432,505:506,531:532,544:545,557:563)
+CNam<-colnames(TestTrain)
+colsel<-c(1,2,grep("*mean*|*std*",CNam))
 trim <- TestTrain[,colsel]
+## For column readability replace . for nothing
+CNam<-colnames(trim)
+CNam<-gsub("*(\\.)(\\.)*|*(\\.)(\\.)(\\.)*","",CNam)
+colnames(trim)<-CNam
 ##labels <-read.table("activity_labels.txt")
-## Change activity numbers to labels
+## Change activity numbers to labels not very elegant my option was a merge but wasn't sure of the memory
+## Rstudio seem unstable
 trim$Activity_id[trim$Activity_id ==1]<-"WALKING"
 trim$Activity_id[trim$Activity_id ==2]<-"WALKING_UPSTAIRS"
 trim$Activity_id[trim$Activity_id ==3]<-"WALKING_DOWNSTAIRS"
@@ -45,5 +51,5 @@ trim$Activity_id[trim$Activity_id ==6]<-"LAYING"
 #obtain the large skinny dataset with the markers
 trimMelt <- melt(trim,id=c("Subject_id","Activity_id"))
 final<-dcast(trimMelt,Subject_id+Activity_id~variable,mean)
-## write the final data in directory UCI HAR Dataset
+##write the final data in directory UCI HAR Dataset
 write.table(final,"tidy.txt")
